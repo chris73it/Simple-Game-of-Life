@@ -1,1 +1,1 @@
-# A Simple Imlpementation for the Game of Life
+# A Simple Imlpementation of the Game of Life
