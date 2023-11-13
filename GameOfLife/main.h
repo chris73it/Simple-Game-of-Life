@@ -1,6 +1,13 @@
 #pragma once
 
+size_t position(int x, int y);
+
 void drawBlankField(wchar_t* screen);
-void glider(wchar_t* screen, size_t x, size_t y);
+
+void cell(wchar_t* screen, int x, int y);
+
+void glider(int x, int y);
+
 void calculateNextGeneration();
-void calculateCell(size_t x, size_t y);
+
+void calculateCell(int x, int y);

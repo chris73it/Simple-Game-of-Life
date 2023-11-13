@@ -32,10 +32,13 @@
 #include <thread>
 #include "main.h"
 
-const unsigned int FRAME_DELAY = 1000;
+const unsigned int FRAME_DELAY = 50;
 const unsigned int FINAL_DELAY = 5000;
 
-const int SCREEN_WIDTH = 120;    // Console Screen Size X (columns)
+const wchar_t DEAD_CELL  = L' ';
+const wchar_t ALIVE_CELL = L'*';
+
+const int SCREEN_WIDTH  = 120;   // Console Screen Size X (columns)
 const int SCREEN_HEIGHT = 30;    // Console Screen Size Y (rows)
 
 bool isScreenOneCurrent = true;
@@ -57,14 +60,21 @@ int main()
     drawBlankField(screen1);
     drawBlankField(screen2);
 
-    glider(screen1, 1, 1);
-    glider(screen2, 1, 1);
+    glider(01, 1);
+    glider(31, 1);
+    glider(61, 1);
 
     // Main Loop
     bool bGameOver = false;
     while (!bGameOver)
-    {        
-        // Display Frame
+    {
+        // Display Current Screen
+        WriteConsoleOutputCharacter(hConsole, screenCurrent, SCREEN_WIDTH * SCREEN_HEIGHT, { 0,0 }, &dwBytesWritten);
+        
+        // Small Step = 1 Game Tick
+        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(FRAME_DELAY));
+
+        isScreenOneCurrent = !isScreenOneCurrent;
         if (isScreenOneCurrent)
         {
             screenCurrent = screen1;
@@ -79,12 +89,6 @@ int main()
         }
 
         calculateNextGeneration();
-
-        WriteConsoleOutputCharacter(hConsole, screenNext, SCREEN_WIDTH * SCREEN_HEIGHT, { 0,0 }, &dwBytesWritten);
-
-        isScreenOneCurrent = !isScreenOneCurrent;
-
-        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(FRAME_DELAY)); // Small Step = 1 Game Tick
     }
 
     // Exiting
@@ -93,69 +97,83 @@ int main()
     return 0;
 }
 
-size_t position(size_t x, size_t y)
+size_t position(int x, int y)
 {
     return x + y * SCREEN_WIDTH;
+    //return (x % (SCREEN_WIDTH-2)) + (y % (SCREEN_HEIGHT-2)) * SCREEN_WIDTH;
 }
 
 void drawBlankField(wchar_t* screen)
 {
     for (size_t index = 0; index < SCREEN_HEIGHT * SCREEN_WIDTH; index++)
     {
-        screen[index] = L' ';
+        screen[index] = DEAD_CELL;
     }
 }
 
-void glider(wchar_t* screen, size_t x, size_t y)
+void cell(wchar_t* screen, int x, int y, wchar_t character)
 {
-    screen[position(x + 1, y - 1)] = L'*';
-    screen[position(x - 1, y    )] = L'*';
-    screen[position(x + 1, y    )] = L'*';
-    screen[position(x    , y + 1)] = L'*';
-    screen[position(x + 1, y + 1)] = L'*';
+    screen[position(x, y)] = character;
+}
+
+void glider(int x, int y)
+{
+    //screen1
+    cell(screen1, x + 1, y - 1, ALIVE_CELL);
+    cell(screen1, x - 1, y    , ALIVE_CELL);
+    cell(screen1, x + 1, y    , ALIVE_CELL);
+    cell(screen1, x    , y + 1, ALIVE_CELL);
+    cell(screen1, x + 1, y + 1, ALIVE_CELL);
+
+    // screen2
+    cell(screen2, x + 1, y - 1, ALIVE_CELL);
+    cell(screen2, x - 1, y    , ALIVE_CELL);
+    cell(screen2, x + 1, y    , ALIVE_CELL);
+    cell(screen2, x    , y + 1, ALIVE_CELL);
+    cell(screen2, x + 1, y + 1, ALIVE_CELL);
 }
 
 void calculateNextGeneration()
 {
-    for (size_t y = 1; y < SCREEN_HEIGHT - 1; ++y)
+    for (size_t y = 0; y < SCREEN_HEIGHT; ++y)
     {
-        for (size_t x = 1; x < SCREEN_WIDTH - 1; ++x)
+        for (size_t x = 0; x < SCREEN_WIDTH; ++x)
         {
             calculateCell(x, y);
         }
     }
 }
 
-void calculateCell(size_t x, size_t y)
+void calculateCell(int x, int y)
 {
     int neighborCellsCounter = 0;
-    if (screenCurrent[position(x - 1, y - 1)] == L'*')
+    if (screenCurrent[position(x - 1, y - 1)] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x    , y - 1)] == L'*')
+    if (screenCurrent[position(x    , y - 1)] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x + 1, y - 1)] == L'*')
+    if (screenCurrent[position(x + 1, y - 1)] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x - 1, y    )] == L'*')
+    if (screenCurrent[position(x - 1, y    )] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x + 1, y    )] == L'*')
+    if (screenCurrent[position(x + 1, y    )] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x - 1, y + 1)] == L'*')
+    if (screenCurrent[position(x - 1, y + 1)] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x    , y + 1)] == L'*')
+    if (screenCurrent[position(x    , y + 1)] == ALIVE_CELL)
         neighborCellsCounter++;
-    if (screenCurrent[position(x + 1, y + 1)] == L'*')
+    if (screenCurrent[position(x + 1, y + 1)] == ALIVE_CELL)
         neighborCellsCounter++;
 
-    if (screenCurrent[position(x, y)] == L' ')
+    if (screenCurrent[position(x, y)] == DEAD_CELL)
     {//The cell in (x,y) is currently dead
         if (neighborCellsCounter == 3)
-            screenNext[position(x, y)] = L'*';
+            screenNext[position(x, y)] = ALIVE_CELL;
     }
     else
     {//The cell in (x,y) is currently alive
         if (neighborCellsCounter < 2 || neighborCellsCounter > 3)
-            screenNext[position(x, y)] = L' ';
+            screenNext[position(x, y)] = DEAD_CELL;
         else
-            screenNext[position(x, y)] = L'*';
+            screenNext[position(x, y)] = ALIVE_CELL;
     }
 }
