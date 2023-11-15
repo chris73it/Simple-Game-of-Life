@@ -50,6 +50,9 @@ wchar_t* screenNext = screen2;
 
 int main()
 {
+    //printf("%d", -1 % 30);
+    //return 0;
+
     /*
     * Initialize data structures.
     */
@@ -61,9 +64,9 @@ int main()
     drawBlankField(screen1);
     drawBlankField(screen2);
 
-    glider(01, 1);
-    blinker(31, 1);
-    toad(61, 3);
+    glider(100, 20);
+    //blinker(31, 1);
+    //toad(61, 3);
 
     // Main Loop
     bool bGameOver = false;
@@ -100,7 +103,36 @@ int main()
 
 size_t position(int x, int y)
 {
-    return (x % SCREEN_WIDTH) + (y % SCREEN_HEIGHT) * SCREEN_WIDTH;
+    int totalX = 0;
+    int totalY = 0;
+
+    /*if (x >= 0 && x <= SCREEN_WIDTH-1)
+    {
+        totalX += x;
+    }
+    else
+    {
+        totalX += (SCREEN_WIDTH + x);
+    }
+
+    if (y >= 0 && y <= SCREEN_HEIGHT - 1)
+    {
+        totalY += y;
+    }
+    else
+    {
+        totalY += (SCREEN_HEIGHT + y);
+    }*/
+
+    if (x < 0) { totalX = SCREEN_WIDTH + x; }
+    else if (x > SCREEN_WIDTH - 1) { totalX = 0; }
+    else { totalX = x; }
+    
+    if (y < 0) { totalY = SCREEN_HEIGHT + y; }
+    else if (y > SCREEN_HEIGHT - 1) { totalY = 0; }
+    else { totalY = y; }
+
+    return totalX + totalY * SCREEN_WIDTH;
 }
 
 void drawBlankField(wchar_t* screen)
@@ -118,47 +150,34 @@ void cell(wchar_t* screen, int x, int y, wchar_t character)
 
 void blinker(int x, int y)
 {
-    cell(screen1, x, y - 1, ALIVE_CELL);
-    cell(screen1, x, y    , ALIVE_CELL);
-    cell(screen1, x, y + 1, ALIVE_CELL);
-
-    cell(screen2, x, y - 1, ALIVE_CELL);
-    cell(screen2, x, y, ALIVE_CELL);
-    cell(screen2, x, y + 1, ALIVE_CELL);
+    for (size_t i = 0; i < 2; ++i) {
+        cell(screens[i], x, y - 1, ALIVE_CELL);
+        cell(screens[i], x, y, ALIVE_CELL);
+        cell(screens[i], x, y + 1, ALIVE_CELL);
+    }
 }
 
 void toad(int x, int y)
 {
-    cell(screen1, x - 1, y    , ALIVE_CELL);
-    cell(screen1, x    , y    , ALIVE_CELL);
-    cell(screen1, x + 1, y    , ALIVE_CELL);
-    cell(screen1, x - 2, y + 1, ALIVE_CELL);
-    cell(screen1, x - 1, y + 1, ALIVE_CELL);
-    cell(screen1, x    , y + 1, ALIVE_CELL);
-
-    cell(screen2, x - 1, y    , ALIVE_CELL);
-    cell(screen2, x    , y    , ALIVE_CELL);
-    cell(screen2, x + 1, y    , ALIVE_CELL);
-    cell(screen2, x - 2, y + 1, ALIVE_CELL);
-    cell(screen2, x - 1, y + 1, ALIVE_CELL);
-    cell(screen2, x    , y + 1, ALIVE_CELL);
+    for (size_t i = 0; i < 2; ++i) {
+        cell(screens[i], x - 1, y, ALIVE_CELL);
+        cell(screens[i], x, y, ALIVE_CELL);
+        cell(screens[i], x + 1, y, ALIVE_CELL);
+        cell(screens[i], x - 2, y + 1, ALIVE_CELL);
+        cell(screens[i], x - 1, y + 1, ALIVE_CELL);
+        cell(screens[i], x, y + 1, ALIVE_CELL);
+    }
 }
 
 void glider(int x, int y)
 {
-    //screen1
-    cell(screen1, x + 1, y - 1, ALIVE_CELL);
-    cell(screen1, x - 1, y    , ALIVE_CELL);
-    cell(screen1, x + 1, y    , ALIVE_CELL);
-    cell(screen1, x    , y + 1, ALIVE_CELL);
-    cell(screen1, x + 1, y + 1, ALIVE_CELL);
-
-    // screen2
-    cell(screen2, x + 1, y - 1, ALIVE_CELL);
-    cell(screen2, x - 1, y    , ALIVE_CELL);
-    cell(screen2, x + 1, y    , ALIVE_CELL);
-    cell(screen2, x    , y + 1, ALIVE_CELL);
-    cell(screen2, x + 1, y + 1, ALIVE_CELL);
+    for (size_t i = 0; i < 2; ++i) {
+        cell(screens[i], x + 1, y - 1, ALIVE_CELL);
+        cell(screens[i], x - 1, y    , ALIVE_CELL);
+        cell(screens[i], x + 1, y    , ALIVE_CELL);
+        cell(screens[i], x    , y + 1, ALIVE_CELL);
+        cell(screens[i], x + 1, y + 1, ALIVE_CELL);
+    }
 }
 
 void calculateNextGeneration()
