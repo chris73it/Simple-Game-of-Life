@@ -125,11 +125,11 @@ size_t position(int x, int y)
     }*/
 
     if (x < 0) { totalX = SCREEN_WIDTH + x; }
-    else if (x > SCREEN_WIDTH - 1) { totalX = 0; }
+    else if (x > SCREEN_WIDTH - 1) { totalX = x - SCREEN_WIDTH; }
     else { totalX = x; }
     
     if (y < 0) { totalY = SCREEN_HEIGHT + y; }
-    else if (y > SCREEN_HEIGHT - 1) { totalY = 0; }
+    else if (y > SCREEN_HEIGHT - 1) { totalY = y - SCREEN_HEIGHT; }
     else { totalY = y; }
 
     return totalX + totalY * SCREEN_WIDTH;
