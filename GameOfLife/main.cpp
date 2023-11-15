@@ -44,6 +44,7 @@ const int SCREEN_HEIGHT = 30;    // Console Screen Size Y (rows)
 bool isScreenOneCurrent = true;
 wchar_t* screen1 = new wchar_t[SCREEN_WIDTH * SCREEN_HEIGHT];
 wchar_t* screen2 = new wchar_t[SCREEN_WIDTH * SCREEN_HEIGHT];
+wchar_t* screens[] = {screen1, screen2};
 wchar_t* screenCurrent = screen1;
 wchar_t* screenNext = screen2;
 
@@ -61,8 +62,8 @@ int main()
     drawBlankField(screen2);
 
     glider(01, 1);
-    glider(31, 1);
-    glider(61, 1);
+    blinker(31, 1);
+    toad(61, 3);
 
     // Main Loop
     bool bGameOver = false;
@@ -99,8 +100,7 @@ int main()
 
 size_t position(int x, int y)
 {
-    return x + y * SCREEN_WIDTH;
-    //return (x % (SCREEN_WIDTH-2)) + (y % (SCREEN_HEIGHT-2)) * SCREEN_WIDTH;
+    return (x % SCREEN_WIDTH) + (y % SCREEN_HEIGHT) * SCREEN_WIDTH;
 }
 
 void drawBlankField(wchar_t* screen)
@@ -114,6 +114,34 @@ void drawBlankField(wchar_t* screen)
 void cell(wchar_t* screen, int x, int y, wchar_t character)
 {
     screen[position(x, y)] = character;
+}
+
+void blinker(int x, int y)
+{
+    cell(screen1, x, y - 1, ALIVE_CELL);
+    cell(screen1, x, y    , ALIVE_CELL);
+    cell(screen1, x, y + 1, ALIVE_CELL);
+
+    cell(screen2, x, y - 1, ALIVE_CELL);
+    cell(screen2, x, y, ALIVE_CELL);
+    cell(screen2, x, y + 1, ALIVE_CELL);
+}
+
+void toad(int x, int y)
+{
+    cell(screen1, x - 1, y    , ALIVE_CELL);
+    cell(screen1, x    , y    , ALIVE_CELL);
+    cell(screen1, x + 1, y    , ALIVE_CELL);
+    cell(screen1, x - 2, y + 1, ALIVE_CELL);
+    cell(screen1, x - 1, y + 1, ALIVE_CELL);
+    cell(screen1, x    , y + 1, ALIVE_CELL);
+
+    cell(screen2, x - 1, y    , ALIVE_CELL);
+    cell(screen2, x    , y    , ALIVE_CELL);
+    cell(screen2, x + 1, y    , ALIVE_CELL);
+    cell(screen2, x - 2, y + 1, ALIVE_CELL);
+    cell(screen2, x - 1, y + 1, ALIVE_CELL);
+    cell(screen2, x    , y + 1, ALIVE_CELL);
 }
 
 void glider(int x, int y)
