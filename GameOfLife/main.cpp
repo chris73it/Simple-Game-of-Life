@@ -50,9 +50,6 @@ wchar_t* screenNext = screen2;
 
 int main()
 {
-    //printf("%d", -1 % 30);
-    //return 0;
-
     /*
     * Initialize data structures.
     */
@@ -105,24 +102,6 @@ size_t position(int x, int y)
 {
     int totalX = 0;
     int totalY = 0;
-
-    /*if (x >= 0 && x <= SCREEN_WIDTH-1)
-    {
-        totalX += x;
-    }
-    else
-    {
-        totalX += (SCREEN_WIDTH + x);
-    }
-
-    if (y >= 0 && y <= SCREEN_HEIGHT - 1)
-    {
-        totalY += y;
-    }
-    else
-    {
-        totalY += (SCREEN_HEIGHT + y);
-    }*/
 
     if (x < 0) { totalX = SCREEN_WIDTH + x; }
     else if (x > SCREEN_WIDTH - 1) { totalX = x - SCREEN_WIDTH; }
